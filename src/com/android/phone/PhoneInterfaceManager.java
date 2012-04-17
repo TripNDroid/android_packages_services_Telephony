@@ -3402,4 +3402,11 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
             phone.setPolicyDataEnabled(enabled);
         }
     }
+
+    /**
+     * LTE for GSM LTE phones
+     */
+    public int getLteOnGsmMode() {
+        return mPhone.getLteOnGsmMode();
+    }
 }
