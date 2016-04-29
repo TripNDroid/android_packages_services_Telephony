@@ -13,6 +13,7 @@ LOCAL_JAVA_LIBRARIES := telephony-common voip-common ims-common telephony-ext
 LOCAL_STATIC_JAVA_LIBRARIES := \
         org.apache.http.legacy \
         guava \
+        ims-ext-common \
         volley
 
 LOCAL_SRC_FILES := $(call all-java-files-under, $(src_dirs))
