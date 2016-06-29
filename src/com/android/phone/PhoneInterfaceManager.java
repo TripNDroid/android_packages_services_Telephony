@@ -36,6 +36,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.ResultReceiver;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.PreferenceManager;
@@ -147,6 +148,8 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
     private static final int EVENT_SET_ALLOWED_CARRIERS_DONE = 44;
     private static final int CMD_GET_ALLOWED_CARRIERS = 45;
     private static final int EVENT_GET_ALLOWED_CARRIERS_DONE = 46;
+
+    private static final String PRIMARY_CARD_PROPERTY_NAME = "persist.radio.primarycard";
 
     /** The singleton instance. */
     private static PhoneInterfaceManager sInstance;
@@ -3016,6 +3019,7 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
         }
 
         final long identity = Binder.clearCallingIdentity();
+        int networkMode;
         try {
             if (SubscriptionManager.isUsableSubIdValue(subId) && !mUserManager.hasUserRestriction(
                     UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS)) {
@@ -3024,7 +3028,14 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
                 // Set network selection mode to automatic
                 setNetworkSelectionModeAutomatic(subId);
                 // Set preferred mobile network type to the best available
-                setPreferredNetworkType(subId, Phone.PREFERRED_NT_MODE);
+                if (SystemProperties.getBoolean(PRIMARY_CARD_PROPERTY_NAME, false) ) {
+                    networkMode = PhoneFactory.calculatePreferredNetworkType(
+                            mPhone.getContext(), subId);
+                } else {
+                    networkMode = Phone.PREFERRED_NT_MODE;
+                }
+                setPreferredNetworkType(subId, networkMode);
+
                 // Turn off roaming
                 SubscriptionManager.from(mApp).setDataRoaming(0, subId);
             }
