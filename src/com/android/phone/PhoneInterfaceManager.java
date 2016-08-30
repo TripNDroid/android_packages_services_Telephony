@@ -2007,7 +2007,7 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     @Override
     public int getNetworkType() {
-        final Phone phone = getPhone(getDefaultSubscription());
+        final Phone phone = getPhone(mSubscriptionController.getDefaultDataSubId());
         if (phone != null) {
             return phone.getServiceState().getDataNetworkType();
         } else {
@@ -2037,7 +2037,8 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     @Override
     public int getDataNetworkType(String callingPackage) {
-        return getDataNetworkTypeForSubscriber(getDefaultSubscription(), callingPackage);
+        return getDataNetworkTypeForSubscriber(mSubscriptionController.getDefaultDataSubId(),
+                callingPackage);
     }
 
     /**
