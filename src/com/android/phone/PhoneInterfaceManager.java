@@ -3447,4 +3447,20 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
     public int getLteOnGsmMode() {
         return mPhone.getLteOnGsmMode();
     }
+
+    /**
+     * Set SIM card power state. Request is equivalent to inserting or removing the card.
+     *
+     * @param slotId SIM slot id.
+     * @param powerUp True if powering up the SIM, otherwise powering down
+     *
+     **/
+    @Override
+    public void setSimPowerStateForSlot(int slotId, boolean powerUp) {
+        enforceModifyPermission();
+        Phone phone = PhoneFactory.getPhone(slotId);
+        if (phone != null) {
+            phone.setSimPowerState(powerUp);
+        }
+    }
 }
