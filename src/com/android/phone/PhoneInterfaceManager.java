@@ -485,7 +485,6 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
                 case CMD_OPEN_CHANNEL:
                     request = (MainThreadRequest) msg.obj;
                     uiccCard = getUiccCardFromRequest(request);
-                    Pair<String, Integer> openChannelArgs = (Pair<String, Integer>) request.argument;
                     if (uiccCard == null) {
                         loge("iccOpenLogicalChannel: No UICC");
                         request.result = new IccOpenLogicalChannelResponse(-1,
@@ -495,8 +494,7 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
                         }
                     } else {
                         onCompleted = obtainMessage(EVENT_OPEN_CHANNEL_DONE, request);
-                        uiccCard.iccOpenLogicalChannel(openChannelArgs.first,
-                                openChannelArgs.second, onCompleted);
+                        uiccCard.iccOpenLogicalChannel((String)request.argument, onCompleted);
                     }
                     break;
 
@@ -2170,12 +2168,12 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
     }
 
     @Override
-    public IccOpenLogicalChannelResponse iccOpenLogicalChannel(int subId, String AID, int p2) {
+    public IccOpenLogicalChannelResponse iccOpenLogicalChannel(int subId, String AID) {
         enforceModifyPermissionOrCarrierPrivilege(subId);
 
-        if (DBG) log("iccOpenLogicalChannel: subId=" + subId + " aid=" + AID + " p2=" + p2);
+        if (DBG) log("iccOpenLogicalChannel: subId=" + subId + " aid=" + AID);
         IccOpenLogicalChannelResponse response = (IccOpenLogicalChannelResponse)sendRequest(
-            CMD_OPEN_CHANNEL, new Pair<String, Integer>(AID, p2), subId);
+            CMD_OPEN_CHANNEL, AID, subId);
         if (DBG) log("iccOpenLogicalChannel: " + response);
         return response;
     }
@@ -2980,32 +2978,6 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
 
     /*
      * {@hide}
-     * Returns the Voice over Wifi Calling Status
-     */
-    public boolean isVoWifiCallingAvailableForSubscriber(int subId) {
-        final Phone phone = getPhone(subId);
-
-        if (phone != null) {
-            return phone.isWifiCallingEnabled();
-        }
-        return false;
-    }
-
-    /*
-     * {@hide}
-     * Returns the Video telephony WifiCalling Status
-     */
-    public boolean isVideoTelephonyWifiCallingAvailableForSubscriber(int subId) {
-        final Phone phone = getPhone(subId);
-
-        if (phone != null) {
-            return phone.isVideoWifiCallingEnabled();
-        }
-        return false;
-    }
-
-    /*
-     * {@hide}
      * Returns the IMS Registration Status
      */
     public boolean isVolteAvailable() {
@@ -3474,21 +3446,5 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     public int getLteOnGsmMode() {
         return mPhone.getLteOnGsmMode();
-    }
-
-    /**
-     * Set SIM card power state. Request is equivalent to inserting or removing the card.
-     *
-     * @param slotId SIM slot id.
-     * @param powerUp True if powering up the SIM, otherwise powering down
-     *
-     **/
-    @Override
-    public void setSimPowerStateForSlot(int slotId, boolean powerUp) {
-        enforceModifyPermission();
-        Phone phone = PhoneFactory.getPhone(slotId);
-        if (phone != null) {
-            phone.setSimPowerState(powerUp);
-        }
     }
 }
